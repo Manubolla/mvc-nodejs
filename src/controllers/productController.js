@@ -5,7 +5,7 @@ const ProductControllerMethods = {
   GetAllProducts: async (req, res) => {
     try {
       const products = await Product.findAll();
-      res.status(200).json(products);
+      res.status(200).json({success: true, msg: "", result: products});
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -13,7 +13,7 @@ const ProductControllerMethods = {
   GetAllActiveProducts: async (req, res) => {
     try {
       const products = await Product.findAll({where: {status: "active"}});
-      res.status(200).json(products);
+      res.status(200).json({success: true, msg: "", result: products});
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -21,7 +21,7 @@ const ProductControllerMethods = {
   GetAllInactiveProducts: async (req, res) => {
     try {
       const products = await Product.findAll({where: {status: "inactive"}});
-      res.status(200).json(products);
+      res.status(200).json({success: true, msg: "", result: products});
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -29,7 +29,7 @@ const ProductControllerMethods = {
   CreateNewProduct: async (req, res) => {
     try {
       const product = await Product.create(req.body);
-      res.status(200).json(product);
+      res.status(200).json({success: true, msg: "The product was created", result: product});
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -45,16 +45,14 @@ const ProductControllerMethods = {
         res.json({
           success: true,
           msg: "The product was updated",
-          product: updatedProduct,
+          result: updatedProduct,
         });
       else
         res.json({
           success: false,
           msg: "The product was not updated",
-          product: updatedProduct,
+          result: updatedProduct,
         });
-
-      res.json(updatedProduct);
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -64,7 +62,7 @@ const ProductControllerMethods = {
       const { id } = req.params;
       const product = await Product.findByPk(id);
 
-      res.json(product);
+      res.json({success: true, msg: "", result: product});
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -82,13 +80,13 @@ const ProductControllerMethods = {
         res.json({
           success: true,
           msg: "the product was deleted",
-          product: deletedProduct,
+          result: deletedProduct,
         });
       else
         res.json({
           success: false,
           msg: "The product was not deleted",
-          product: deletedProduct,
+          result: deletedProduct,
         });
     } catch (error) {
       res.stats(400).json({ error });
@@ -107,13 +105,13 @@ const ProductControllerMethods = {
         res.json({
           success: true,
           msg: "the product was restored",
-          product: restoredProduct,
+          result: restoredProduct,
         });
       else
         res.json({
           success: false,
           msg: "The product was not restored",
-          product: restoredProduct,
+          result: restoredProduct,
         });
     } catch (error) {
       res.status(400).json({ error });
