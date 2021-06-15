@@ -1,35 +1,36 @@
 const { sequelize } = require("../config");
-const { Product } = sequelize.models;
+const { Product, Category, ProductCategory } = sequelize.models;
+const { Op } = require("sequelize");
 
 const ProductControllerMethods = {
   GetAllProducts: async (req, res) => {
+    const { includeRelationship, addInactive } = req.body;
     try {
-      const products = await Product.findAll();
-      res.status(200).json({success: true, msg: "", result: products});
-    } catch (error) {
-      res.status(400).json({ error });
-    }
-  },
-  GetAllActiveProducts: async (req, res) => {
-    try {
-      const products = await Product.findAll({where: {status: "active"}});
-      res.status(200).json({success: true, msg: "", result: products});
-    } catch (error) {
-      res.status(400).json({ error });
-    }
-  },
-  GetAllInactiveProducts: async (req, res) => {
-    try {
-      const products = await Product.findAll({where: {status: "inactive"}});
-      res.status(200).json({success: true, msg: "", result: products});
+      const products = await Product.findAll({
+        where: addInactive
+          ? { [Op.or]: [{ status: "active" }, { status: "inactive" }] }
+          : { status: "active" },
+        include: includeRelationship ? [{ model: Category }] : null,
+      });
+      res.status(200).json({ success: true, msg: "", result: products });
     } catch (error) {
       res.status(400).json({ error });
     }
   },
   CreateNewProduct: async (req, res) => {
     try {
+      const { CategoriesId } = req.body;
       const product = await Product.create(req.body);
-      res.status(200).json({success: true, msg: "The product was created", result: product});
+
+      for (categoryID of CategoriesId) {
+        let category = await Category.findByPk(categoryID);
+        product.addCategory(category);
+      }
+      res.status(200).json({
+        success: true,
+        msg: "The product was created",
+        result: product,
+      });
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -37,10 +38,21 @@ const ProductControllerMethods = {
   UpdateProduct: async (req, res) => {
     try {
       const { id } = req.params;
+      const { CategoriesIds } = req.body;
       const [wasUpdated, updatedProduct] = await Product.update(req.body, {
         where: { id, status: "active" },
         returning: true,
       });
+      //Buscar otra manera
+      if (CategoriesIds) {
+        await ProductCategory.destroy({ where: { ProductId: id } });
+        for (CategoryId of CategoriesIds) {
+          await ProductCategory.create({
+            ProductId: id,
+            CategoryId,
+          });
+        }
+      }
       if (wasUpdated)
         res.json({
           success: true,
@@ -62,7 +74,7 @@ const ProductControllerMethods = {
       const { id } = req.params;
       const product = await Product.findByPk(id);
 
-      res.json({success: true, msg: "", result: product});
+      res.json({ success: true, msg: "", result: product });
     } catch (error) {
       res.status(400).json({ error });
     }

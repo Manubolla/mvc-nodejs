@@ -1,11 +1,10 @@
 const {Router} = require('express');
-const ProductController = require('../controllers/productController.js')
+const ProductController = require('../controllers/ProductController.js');
 
 const server = Router();
 
+/* Recibe addInactives y includeRelationships en el body. */
 server.get('/', ProductController.GetAllProducts);
-server.get('/active', ProductController.GetAllActiveProducts);
-server.get('/inactive', ProductController.GetAllInactiveProducts);
 server.post('/', ProductController.CreateNewProduct);
 server.put('/:id', ProductController.UpdateProduct);
 server.get('/:id', ProductController.GetProductById);

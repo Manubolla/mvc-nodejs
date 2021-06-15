@@ -6,12 +6,24 @@ module.exports = (sequelize) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+            validate: {
+                len: {
+                    args: [6, 30],
+                    msg: "The name must have between 6 and 30 characters"
+                }
+            }
         },
         description:{
             type: DataTypes.STRING,
             allowNull: false,
+            validate: {
+                len: {
+                    args: [0, 100],
+                    msg: "The name must have between 0 and 100 characters"
+                }
+            }
         },
-        price: {
+        price: {   
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
